@@ -1,0 +1,127 @@
+---
+- name: Ensure dns servers are configured in /etc/resolv.conf
+  template: src=resolv.conf.j2 dest=/etc/resolv.conf
+  when: dns_setup
+  tags: [base_config,dns]
+
+- name: Disabling SELinux
+  selinux:
+    state: disabled
+  tags: [base_config,selinux]
+
+- name: Stop firewalld before using docker machine
+  service:
+    name: firewalld
+    state: stopped
+    enabled: no
+  tags: [base_config,firewalld]
+
+- name: Run yum update
+  yum:
+    name: '*'
+    state: latest
+  tags: [base_config,packages]
+
+- name: Add epel repository
+  yum: name={{item}} state=present
+  with_items:
+    - epel-release
+  tags: [base_config,packages]
+
+- name: Add necessary packages
+  yum: name={{item}} state=present update_cache=yes
+  with_items:
+    - yum-utils
+    - vim
+    - bash-completion
+    - device-mapper-persistent-data
+    - lvm2
+  tags: [base_config,packages]
+
+- name: Re-Install glibc-common package to add necessary locales
+  command: yum reinstall -y glibc-common
+  when: Reinstall_glibc_common
+  tags: [base_config,locale]
+
+- name: Set locale for en_US.utf8
+  command: localectl set-locale LANG="{{ locale }}"
+  when: Set_locale
+  tags: [base_config,locale]
+
+
+
+- name: Add Dcoker CE repository
+  command: /usr/bin/yum-config-manager --add-repo "{{ Docker_repo_address }}"
+  tags: [base_config,docker-engine]
+
+
+- name: Install Docker CE (specific version)
+  yum:
+    name: "docker-ce-{{ Docker_CE_version }}"
+    state: present
+    update_cache: yes
+  when: Docker_version
+  tags: [base_config,docker-engine]
+
+- name: Install Docker CE (latest version)
+  yum:
+    name: docker-ce
+    state: present
+    update_cache: yes
+  when: not Docker_version
+  tags: [base_config,docker-engine]
+
+- name: Start and enable Docker CE service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  tags: [base_config,docker-engine]
+
+
+
+- name: Docker Swarm Initialization
+  shell: docker swarm init --advertise-addr "{{ ansible_host }}"
+  tags: [docker-swarm,swarm-initialize]
+
+- name: Creating the overlay network for the swarm cluster
+  shell: docker network create --driver overlay --subnet "{{ overlay_network_IP }}"/"{{ overlay_network_netmask }}" --opt encrypted --attachable "{{ overlay_network_name }}"
+  tags: [docker-swarm,overlay-network]
+
+
+
+- name: Create a directory for docker-files
+  file:
+    path: /root/swarm/docker-files
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]
+
+- name: copy "docker-files/docker-files.tar.gz" to the swarm nodes and extract it in their docker-files directory
+  unarchive:
+    src: ./files/docker-files/docker-files.tar.gz
+    dest: /root/swarm/docker-files
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]
+
+- name: Create a directory for scripts
+  file:
+    path: /root/swarm/scripts
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]
+
+- name: copy "docker-files/docker-files.tar.gz" to the swarm nodes and extract it in their docker-files directory
+  unarchive:
+    src: ./files/scripts/scripts.tar.gz
+    dest: /root/swarm/scripts
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]

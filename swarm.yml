@@ -1,0 +1,6 @@
+---
+  - hosts: docker-swarm
+    remote_user: root
+
+    roles:
+      - swarm
