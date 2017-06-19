@@ -85,7 +85,7 @@
   tags: [docker-swarm,swarm-initialize]
 
 - name: Creating the overlay network for the swarm cluster
-  shell: docker network create --driver overlay --subnet "{{ overlay_network_IP }}"/"{{ overlay_network_netmask }}" --opt encrypted --attachable true "{{ overlay_network_name }}"
+  shell: docker network create --driver overlay --subnet "{{ overlay_network_IP }}"/"{{ overlay_network_netmask }}" --opt encrypted --attachable=true "{{ overlay_network_name }}"
   tags: [docker-swarm,overlay-network]
 
 
