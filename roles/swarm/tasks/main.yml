@@ -90,38 +90,38 @@
 
 
 
-# - name: Create a directory for docker-files
-#   file:
-#     path: /root/swarm/docker-files
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: 0644
-#   tags: [docker-swarm,docker-images]
-#
-# - name: copy "docker-files/docker-files.tar.gz" to the swarm nodes and extract it in their docker-files directory
-#   unarchive:
-#     src: ./files/docker-files/docker-files.tar.gz
-#     dest: /root/swarm/docker-files
-#     owner: root
-#     group: root
-#     mode: 0644
-#   tags: [docker-swarm,docker-images]
-#
-# - name: Create a directory for scripts
-#   file:
-#     path: /root/swarm/scripts
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: 0644
-#   tags: [docker-swarm,docker-images]
-#
-# - name: copy "docker-files/docker-files.tar.gz" to the swarm nodes and extract it in their docker-files directory
-#   unarchive:
-#     src: ./files/scripts/scripts.tar.gz
-#     dest: /root/swarm/scripts
-#     owner: root
-#     group: root
-#     mode: 0644
-#   tags: [docker-swarm,docker-images]
+- name: Create a directory for docker-files
+  file:
+    path: /root/swarm/docker-files
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]
+
+- name: copy "docker-files/docker-files.tar.gz" to the swarm nodes and extract it in their docker-files directory
+  unarchive:
+    src: ./files/docker-files/docker-files.tar.gz
+    dest: /root/swarm/docker-files
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]
+
+- name: Create a directory for scripts
+  file:
+    path: /root/swarm/scripts
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]
+
+- name: copy "docker-files/docker-files.tar.gz" to the swarm nodes and extract it in their docker-files directory
+  unarchive:
+    src: ./files/scripts/scripts.tar.gz
+    dest: /root/swarm/scripts
+    owner: root
+    group: root
+    mode: 0644
+  tags: [docker-swarm,docker-images]
